@@ -13,7 +13,7 @@ const db = mysql.createConnection(
     // MySQL username,
     user: "root",
     // TODO: Add MySQL password
-    password: "****",
+    password: 'jphunc',
     database: "employee_db",
   },
   console.log(`Connected to the database.`)
@@ -40,9 +40,9 @@ const primaryQuestions = [
 ];
 
 function mainMenu() {
-  inquirer.prompt(primaryQuestions).then((choice) => {
+  inquirer.prompt(primaryQuestions)
+  .then((choice) => {
     console.log(choice);
   });
-};
-
+}
 mainMenu();
