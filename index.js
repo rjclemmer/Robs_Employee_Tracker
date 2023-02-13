@@ -43,6 +43,19 @@ function mainMenu() {
   inquirer.prompt(primaryQuestions)
   .then((choice) => {
     console.log(choice);
+
+    if (choice.userChoice === 'Quit') {
+        console.log('Bye Felicia!');
+        process.exit();
+    }
+
+    if (choice.userChoice === "View all departments") {
+        console.log("Viewing all Departments:");
+        let query = `SELECT name FROM department`;
+        const data = db.query(query);
+        console.table(data);
+        mainMenu();
+    }
   });
 }
 mainMenu();
