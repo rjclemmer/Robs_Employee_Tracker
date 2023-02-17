@@ -40,26 +40,51 @@ const primaryQuestions = [
   },
 ];
 
- function addDepartment() {
-    const departmentName =  inquirer.prompt({
-      name: "department",
-      type: "input",
-      message: "What department are you adding",
-    });
-    const data = departmentName.department;
-    const query =   db.query(
-        "INSERT INTO department SET ?",
-        {
-          dept: data,
-        },
-    
-        function (err, res) {
-          if (err) throw err;
-          console.log(res.affectedRows + " Department Added\n");
-          mainMenu();
-        });
-    };
+async function addDepartment() {
+  const departmentName = await inquirer.prompt({
+    name: "department",
+    type: "input",
+    message: "What department are you adding",
+  });
 
+  const data = departmentName.department;
+  console.log(data);
+  db.query(
+    "INSERT INTO department SET ?",
+    {
+      name: data,
+    },
+
+    function (err, res) {
+      if (err) throw err;
+      console.log(res.affectedRows + " Department Added\n");
+      mainMenu();
+    }
+  );
+};
+
+async function addRole() {
+  const departmentName = await inquirer.prompt({
+    name: "department",
+    type: "input",
+    message: "What department are you adding",
+  });
+
+  const data = departmentName.department;
+  console.log(data);
+  db.query(
+    "INSERT INTO department SET ?",
+    {
+      name: data,
+    },
+
+    function (err, res) {
+      if (err) throw err;
+      console.log(res.affectedRows + " Department Added\n");
+      mainMenu();
+    }
+  );
+};
 
 // Main Menu Function
 function mainMenu() {
@@ -86,7 +111,7 @@ function mainMenu() {
         console.table(res);
         mainMenu();
       });
-    };
+    }
 
     // View All roles
     if (choice.userChoice === "View all roles") {
@@ -104,47 +129,50 @@ function mainMenu() {
         console.table(res);
         mainMenu();
       });
-    };
+    }
 
     // View All employees
     if (choice.userChoice === "View all employees") {
-        console.log("Viewing all Employees:");
-        let sqlQuery = `SELECT employee.id AS ID, CONCAT(employee.first_name, ' ', employee.last_name) AS Name, role.title AS Role, role.salary AS Salary, department.name AS Department, IF(employee.manager_id IS NULL, 'Manager', CONCAT(employee2.first_name,' ', employee2.last_name)) AS Manager
+      console.log("Viewing all Employees:");
+      let sqlQuery = `SELECT employee.id AS ID, CONCAT(employee.first_name, ' ', employee.last_name) AS Name, role.title AS Role, role.salary AS Salary, department.name AS Department, IF(employee.manager_id IS NULL, 'Manager', CONCAT(employee2.first_name,' ', employee2.last_name)) AS Manager
         From employee
         JOIN role ON employee.role_id = role.id
         JOIN department on role.department_id = department.id
         LEFT JOIN employee employee2 ON employee.manager_id = employee2.id
         `;
-  
-        db.query(sqlQuery, (err, res) => {
-          if (err) {
-            console.log("\n I'm sorry Dave. I'm afraid I can't do that.");
-            return mainMenu();
-          }
-          console.log("EMPLOYEES!");
-          console.table(res);
-          mainMenu();
-        });
-      };
 
-     // Add Department
-     if (choice.userChoice === "Add department") {
-        console.log("Adding department:");
-        addDepartment();
-        // let sqlQuery = `INSERT INTO department name VALUES (${data});`;
-  
-        // db.query(sqlQuery, (err, res) => {
-        //   if (err) {
-        //     console.log("\n I'm sorry Dave. I'm afraid I can't do that.");
-        //     return mainMenu();
-        //   }
-        //   console.log("EMPLOYEES!");
-        //   console.table(res);
-        //   mainMenu();
-        // });
-      };
+      db.query(sqlQuery, (err, res) => {
+        if (err) {
+          console.log("\n I'm sorry Dave. I'm afraid I can't do that.");
+          return mainMenu();
+        }
+        console.log("EMPLOYEES!");
+        console.table(res);
+        mainMenu();
+      });
+    }
 
-     // let queryReq = 
+    // Add Department
+    if (choice.userChoice === "Add department") {
+      console.log("Adding department:");
+      addDepartment();
+
+      // function addDepartment() {
+      //   inquirer.prompt({type: 'input', name: 'name', message: 'What\'s the name of the new department? ', validate: name => {return (!name ? 'Write the title for the NEW role' : true);}})
+      //   .then((data) => {
+      //       db.add('department', 'name', `'${data.name}'`);
+      //   });
+
+      // const add = (table, columns, data) => {
+      //   let queryReq = `INSERT INTO ${table} (${columns}) VALUES (${data});`;
+      //   db.query(queryReq, (err, res) => {
+      //       if (err) {console.log('\n Request can not be processed \n'); return app.showMenu();}
+      //       console.log(`\nNew ${table} was successfully created\n`);
+      //       app.showMenu();
+      //   });
+    }
+
+    // let queryReq =
   });
 }
 mainMenu();

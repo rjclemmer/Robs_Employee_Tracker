@@ -189,3 +189,8 @@ You are required to submit BOTH of the following for review:
 
 - - -
 © 2023 edX Boot Camps LLC. Confidential and Proprietary. All Rights Reserved.
+
+
+## Credits and Shout Outs
+
+https://www.w3schools.com/sql/sql_join_left.asp
