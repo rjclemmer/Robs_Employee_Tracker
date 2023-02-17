@@ -63,28 +63,47 @@ async function addDepartment() {
   );
 };
 
-async function addRole() {
-  const departmentName = await inquirer.prompt({
-    name: "department",
+async function addEmployee() {
+  const employeeInfo = await inquirer.prompt([
+    {
+    name: "firstName",
     type: "input",
-    message: "What department are you adding",
-  });
+    message: "What is the employee's first name?",
+  },
+  {
+    name: "lastName",
+    type: "input",
+    message: "What is the employee's last name?",
+  },
+  {
+    name: "roleID",
+    type: "number",
+    message: "What is the employee's role?",
+  },
+  {
+    name: "managerID",
+    type: "confirm",
+    message: "Is the employee a manager?",
+  },
+]).then((data) => {
 
-  const data = departmentName.department;
   console.log(data);
   db.query(
-    "INSERT INTO department SET ?",
+    "INSERT INTO employee SET ?",
     {
-      name: data,
+      first_name: data.firstName,
+      last_name: data.lastName,
+      role_id: data.roleId,
+      manager_id: data.managerId,
     },
 
     function (err, res) {
       if (err) throw err;
-      console.log(res.affectedRows + " Department Added\n");
+      console.log(res.affectedRows + " Employee Added\n");
       mainMenu();
     }
   );
-};
+})};
 
 // Main Menu Function
 function mainMenu() {
@@ -134,12 +153,15 @@ function mainMenu() {
     // View All employees
     if (choice.userChoice === "View all employees") {
       console.log("Viewing all Employees:");
-      let sqlQuery = `SELECT employee.id AS ID, CONCAT(employee.first_name, ' ', employee.last_name) AS Name, role.title AS Role, role.salary AS Salary, department.name AS Department, IF(employee.manager_id IS NULL, 'Manager', CONCAT(employee2.first_name,' ', employee2.last_name)) AS Manager
-        From employee
-        JOIN role ON employee.role_id = role.id
-        JOIN department on role.department_id = department.id
-        LEFT JOIN employee employee2 ON employee.manager_id = employee2.id
+      let sqlQuery = `Select * from employee;
         `;
+
+        // `SELECT employee.id AS ID, CONCAT(employee.first_name, ' ', employee.last_name) AS Name, role.title AS Role, role.salary AS Salary, department.name AS Department, IF(employee.manager_id IS NULL, 'Manager', CONCAT(employee2.first_name,' ', employee2.last_name)) AS Manager
+        // From employee
+        // JOIN role ON employee.role_id = role.id
+        // JOIN department on role.department_id = department.id
+        // LEFT JOIN employee employee2 ON employee.manager_id = employee2.id
+        // `;
 
       db.query(sqlQuery, (err, res) => {
         if (err) {
@@ -156,20 +178,11 @@ function mainMenu() {
     if (choice.userChoice === "Add department") {
       console.log("Adding department:");
       addDepartment();
+    }
 
-      // function addDepartment() {
-      //   inquirer.prompt({type: 'input', name: 'name', message: 'What\'s the name of the new department? ', validate: name => {return (!name ? 'Write the title for the NEW role' : true);}})
-      //   .then((data) => {
-      //       db.add('department', 'name', `'${data.name}'`);
-      //   });
-
-      // const add = (table, columns, data) => {
-      //   let queryReq = `INSERT INTO ${table} (${columns}) VALUES (${data});`;
-      //   db.query(queryReq, (err, res) => {
-      //       if (err) {console.log('\n Request can not be processed \n'); return app.showMenu();}
-      //       console.log(`\nNew ${table} was successfully created\n`);
-      //       app.showMenu();
-      //   });
+    if (choice.userChoice === "Add employee") {
+      console.log("Adding employee:");
+      addEmployee();
     }
 
     // let queryReq =
