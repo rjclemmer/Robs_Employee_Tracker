@@ -19,7 +19,7 @@ const db = mysql.createConnection(
   console.log(`Connected to the database.`)
 );
 
-// Main Meue Questions
+// Main Menu Questions
 const primaryQuestions = [
   {
     type: "list",
@@ -40,6 +40,7 @@ const primaryQuestions = [
   },
 ];
 
+// function that adds a department
 async function addDepartment() {
   const departmentName = await inquirer.prompt({
     name: "department",
@@ -61,49 +62,106 @@ async function addDepartment() {
       mainMenu();
     }
   );
-};
+}
 
+// function that can add an employee .... kind of
 async function addEmployee() {
-  const employeeInfo = await inquirer.prompt([
-    {
-    name: "firstName",
-    type: "input",
-    message: "What is the employee's first name?",
-  },
-  {
-    name: "lastName",
-    type: "input",
-    message: "What is the employee's last name?",
-  },
-  {
-    name: "roleID",
-    type: "number",
-    message: "What is the employee's role?",
-  },
-  {
-    name: "managerID",
-    type: "confirm",
-    message: "Is the employee a manager?",
-  },
-]).then((data) => {
+  const employeeInfo = await inquirer
+    .prompt([
+      {
+        name: "firstName",
+        type: "input",
+        message: "What is the employee's first name?",
+      },
+      {
+        name: "lastName",
+        type: "input",
+        message: "What is the employee's last name?",
+      },
+      {
+        name: "roleId",
+        type: "number",
+        message: "What is the employee's role?",
+      },
+      {
+        name: "managerId",
+        type: "confirm",
+        message: "Is the employee a manager?",
+      },
+    ])
+    .then((data) => {
+      // if managerid is true, sets manager to null, else not a manager, managerid is set to 1
+      let isManager;
+      if(data.managerId === true) {
+        isManager = null;
+      } else {
+        isManager = 1
+      }
+      console.log(data);
+      db.query(
+        "INSERT INTO employee SET ?",
+        {
+          first_name: data.firstName,
+          last_name: data.lastName,
+          role_id: data.roleId,
+          manager_id: isManager,
+        },
 
-  console.log(data);
-  db.query(
-    "INSERT INTO employee SET ?",
-    {
-      first_name: data.firstName,
-      last_name: data.lastName,
-      role_id: data.roleId,
-      manager_id: data.managerId,
-    },
+        function (err, res) {
+          if (err) throw err;
+          console.log(res.affectedRows + " Employee Added\n");
+          mainMenu();
+        }
+      );
+    });
+}
 
-    function (err, res) {
-      if (err) throw err;
-      console.log(res.affectedRows + " Employee Added\n");
-      mainMenu();
+// function that will add Role
+async function addRole() {
+  // first gets info from department table and then renders them as options in prompt
+  db.query("SELECT * FROM department;", async (err, departments) => {
+    if (err) {
+      console.log("\n I'm sorry Dave. I'm afraid I can't do that.");
+      return mainMenu();
     }
-  );
-})};
+    console.log(departments);
+
+    const roleInfo = await inquirer
+      .prompt([
+        {
+          name: "dept",
+          type: "list",
+          message: "Which departments will this role be associated with?",
+          choices: departments.map((row) => {
+            return { name: row.name, value: row.id };
+          }),
+        },
+        {
+          name: "title",
+          type: "input",
+          message: "What role are you creating?",
+        },
+        {
+          name: "salary",
+          type: "number",
+          message: "What is the salary for this role?",
+        },
+      ])
+      .then((data) => {
+        console.log(data);
+
+        db.query(
+          `INSERT INTO role (title, salary, department_id) VALUES ('${data.title}', ${data.salary}, ${data.dept})`,
+          function (err, res) {
+            if (err) throw err;
+            console.log(res.affectedRows + " Role Added\n");
+            mainMenu();
+          }
+        );
+      });
+  });
+}
+
 
 // Main Menu Function
 function mainMenu() {
@@ -153,15 +211,15 @@ function mainMenu() {
     // View All employees
     if (choice.userChoice === "View all employees") {
       console.log("Viewing all Employees:");
-      let sqlQuery = `Select * from employee;
-        `;
+      let sqlQuery = 
+      // `Select * from employee;`;
 
-        // `SELECT employee.id AS ID, CONCAT(employee.first_name, ' ', employee.last_name) AS Name, role.title AS Role, role.salary AS Salary, department.name AS Department, IF(employee.manager_id IS NULL, 'Manager', CONCAT(employee2.first_name,' ', employee2.last_name)) AS Manager
-        // From employee
-        // JOIN role ON employee.role_id = role.id
-        // JOIN department on role.department_id = department.id
-        // LEFT JOIN employee employee2 ON employee.manager_id = employee2.id
-        // `;
+      `SELECT employee.id AS ID, CONCAT(employee.first_name, ' ', employee.last_name) AS Name, role.title AS Role, role.salary AS Salary, department.name AS Department, IF(employee.manager_id IS NULL, 'Manager', CONCAT(employee2.first_name,' ', employee2.last_name)) AS Manager
+      From employee
+      JOIN role ON employee.role_id = role.id
+      JOIN department on role.department_id = department.id
+      LEFT JOIN employee employee2 ON employee.manager_id = employee2.id
+      `;
 
       db.query(sqlQuery, (err, res) => {
         if (err) {
@@ -180,12 +238,17 @@ function mainMenu() {
       addDepartment();
     }
 
+    // Add Employee
     if (choice.userChoice === "Add employee") {
       console.log("Adding employee:");
       addEmployee();
     }
 
-    // let queryReq =
+    // Add Role
+    if (choice.userChoice === "Add role") {
+      console.log("Adding role:");
+      addRole();
+    }
   });
 }
 mainMenu();

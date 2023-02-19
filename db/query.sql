@@ -13,3 +13,6 @@ From employee
 JOIN role ON employee.role_id = role.id
 JOIN department on role.department_id = department.id
 LEFT JOIN employee employee2 ON employee.manager_id = employee2.id
+
+
+`
