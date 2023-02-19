@@ -92,10 +92,10 @@ async function addEmployee() {
     .then((data) => {
       // if managerid is true, sets manager to null, else not a manager, managerid is set to 1
       let isManager;
-      if(data.managerId === true) {
+      if (data.managerId === true) {
         isManager = null;
       } else {
-        isManager = 1
+        isManager = 1;
       }
       console.log(data);
       db.query(
@@ -162,53 +162,54 @@ async function addRole() {
   });
 }
 
-// function to update an Employee's Role
-async function updateRole() {
-  db.query(`SELECT id AS value, title FROM role;`, function (err, results) {
-    let roleChoices = results.map(getCombinedRole);
-    function getCombinedRole(item) {
-      return [item.value, item.title].join(" ");
-    }
-    db.query(
-      `SELECT id AS value, CONCAT(employee.first_name,' ', employee.last_name) AS employee FROM employee;`,
-      function (err, employeeResults) {
-        let employeeChoice = employeeResults.map(getCombinedEmployee);
-        function getCombinedEmployee(item) {
-          return [item.value, item.employee].join(" ");
-        }
-        // This is where the prompts that the user interacts with are
-        inquirer.prompt([
-          {
-            type: "list",
-            message: `which employee’s role do you want to update?`,
-            name: "updateEmployee",
-            choices: employeeChoice,
-          },
-          {
-            type: "list",
-            message: `Which role do you want to assign the selected employee?`,
-            name: "updateRole",
-            choices: roleChoices,
-          },
-        ]).then((res) => {
-          // this is set up the same way it was set up in the addEmployee function. See the comments above
-          var r = /\d+/;
-          var e = res.updateEmployee;
-          var l = res.updateRole;
-          var roleId = res.updateRole;
-          var employeeId = res.updateEmployee;
-          //   This sql statement is used to UPDATE a current employee in the db
-          db.query(
-            `UPDATE employee SET role_id = ${roleId} WHERE employee.id = ${employeeId};`,
-            function (err, res) {}
-          );
-          return mainMenu();
-        });
-      }
-    );
-  });
-};
-
+// // function to update an Employee's Role
+// async function updateRole() {
+//   db.query(`SELECT id AS value, title FROM role;`, function (err, results) {
+//     let roleChoices = results.map(getCombinedRole);
+//     function getCombinedRole(item) {
+//       return [item.value, item.title].join(" ");
+//     }
+//     db.query(
+//       `SELECT id AS value, CONCAT(employee.first_name,' ', employee.last_name) AS employee FROM employee;`,
+//       function (err, employeeResults) {
+//         let employeeChoice = employeeResults.map(getCombinedEmployee);
+//         function getCombinedEmployee(item) {
+//           return [item.value, item.employee].join(" ");
+//         }
+//         // This is where the prompts that the user interacts with are
+//         inquirer
+//           .prompt([
+//             {
+//               type: "list",
+//               message: `which employee’s role do you want to update?`,
+//               name: "updateEmployee",
+//               choices: employeeChoice,
+//             },
+//             {
+//               type: "list",
+//               message: `Which role do you want to assign the selected employee?`,
+//               name: "updateRole",
+//               choices: roleChoices,
+//             },
+//           ])
+//           .then((res) => {
+//             // this is set up the same way it was set up in the addEmployee function. See the comments above
+//             var r = /\d+/;
+//             var e = res.updateEmployee;
+//             var l = res.updateRole;
+//             var roleId = res.updateRole;
+//             var employeeId = res.updateEmployee;
+//             //   This sql statement is used to UPDATE a current employee in the db
+//             db.query(
+//               `UPDATE employee SET role_id = ${roleId} WHERE employee.id = ${employeeId};`,
+//               function (err, res) {}
+//             );
+//             return mainMenu();
+//           });
+//       }
+//     );
+//   });
+// }
 
 // Main Menu Function
 function mainMenu() {
@@ -258,10 +259,10 @@ function mainMenu() {
     // View All employees
     if (choice.userChoice === "View all employees") {
       console.log("Viewing all Employees:");
-      let sqlQuery = 
-      // `Select * from employee;`;
+      let sqlQuery =
+        // `Select * from employee;`;
 
-      `SELECT employee.id AS ID, CONCAT(employee.first_name, ' ', employee.last_name) AS Name, role.title AS Role, role.salary AS Salary, department.name AS Department, IF(employee.manager_id IS NULL, 'Manager', CONCAT(employee2.first_name,' ', employee2.last_name)) AS Manager
+        `SELECT employee.id AS ID, CONCAT(employee.first_name, ' ', employee.last_name) AS Name, role.title AS Role, role.salary AS Salary, department.name AS Department, IF(employee.manager_id IS NULL, 'Manager', CONCAT(employee2.first_name,' ', employee2.last_name)) AS Manager
       From employee
       JOIN role ON employee.role_id = role.id
       JOIN department on role.department_id = department.id
